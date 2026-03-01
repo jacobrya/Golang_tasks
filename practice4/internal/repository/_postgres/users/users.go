@@ -31,7 +31,6 @@ func (r *Repository) GetUsers() ([]modules.User, error) {
 	return users, nil
 }
 
-// CreateUser creates a new user and returns the newly generated ID
 func (r *Repository) CreateUser(user *modules.User) (int, error) {
 	if user == nil {
 		return 0, errors.New("user cannot be nil")
@@ -52,7 +51,6 @@ func (r *Repository) CreateUser(user *modules.User) (int, error) {
 	return id, nil
 }
 
-// UpdateUser updates an existing user and returns an error if the user doesn't exist
 func (r *Repository) UpdateUser(user *modules.User) error {
 	if user == nil {
 		return errors.New("user cannot be nil")
@@ -85,7 +83,6 @@ func (r *Repository) UpdateUser(user *modules.User) error {
 	return nil
 }
 
-// GetUserByID fetches a single user by ID, returns nil and error if not found
 func (r *Repository) GetUserByID(id int) (*modules.User, error) {
 	if id <= 0 {
 		return nil, errors.New("invalid user ID")
@@ -105,7 +102,6 @@ func (r *Repository) GetUserByID(id int) (*modules.User, error) {
 	return &user, nil
 }
 
-// DeleteUserByID deletes a user by ID and returns the number of rows affected
 func (r *Repository) DeleteUserByID(id int) (int64, error) {
 	if id <= 0 {
 		return 0, errors.New("invalid user ID")

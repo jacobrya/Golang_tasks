@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"net/http"
+	"os"
 	"prac4/internal/handler"
 	"prac4/internal/middleware"
 	"prac4/internal/repository"
@@ -57,12 +58,18 @@ func main() {
 }
 
 func initPostgreConfig() *modules.PostgreConfig {
+	host := os.Getenv("DB_HOST")
+	password := os.Getenv("DB_PASSWORD")
+	port := os.Getenv("DB_PORT")
+	user := os.Getenv("DB_USER")
+	dbName := os.Getenv("DB_NAME")
+
 	return &modules.PostgreConfig{
-		Host:        "localhost",
-		Port:        "5432",
-		Username:    "postgres",
-		Password:    "Dakobay1994",
-		DBName:      "mydb",
+		Host:        host,
+		Port:        port,
+		Username:    user,
+		Password:    password,
+		DBName:      dbName,
 		SSLMode:     "disable",
 		ExecTimeout: 5 * time.Second,
 	}
