@@ -1,15 +1,16 @@
 package v1
 
 import (
-	"time"
 	"assignment7/internal/usecase"
 	"assignment7/utils"
+	"time"
+
 	"github.com/gin-gonic/gin"
 )
 
 func NewRouter(handler *gin.Engine, u usecase.UserInterface) {
-	
-	handler.Use(utils.RateLimiterMiddleware(3, time.Minute))
+
+	handler.Use(utils.RateLimiterMiddleware(10, time.Minute))
 
 	v1 := handler.Group("/v1")
 	{
