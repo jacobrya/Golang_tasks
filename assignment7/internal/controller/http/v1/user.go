@@ -1,10 +1,12 @@
 package v1
 
 import (
-	"net/http"
 	"assignment7/internal/entity"
 	"assignment7/internal/usecase"
 	"assignment7/utils"
+	"net/http"
+	"time"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -14,20 +16,20 @@ type userRoutes struct {
 
 func newUserRoutes(handler *gin.RouterGroup, t usecase.UserInterface) {
 	r := &userRoutes{t}
-	
+
 	h := handler.Group("/users")
 	{
-		h.POST("/", r.RegisterUser)
-		h.POST("/login", r.LoginUser)
-		
-		// Protected routes
+
+		public := h.Group("/")
+		public.Use(utils.RateLimiterMiddleware(3, time.Minute))
+		public.POST("/", r.RegisterUser)
+		public.POST("/login", r.LoginUser)
+
 		protected := h.Group("/")
 		protected.Use(utils.JWTAuthMiddleware())
-		
-		
+		protected.Use(utils.RateLimiterMiddleware(3, time.Minute))
 		protected.GET("/me", r.GetMe)
-		
-		
+
 		adminOnly := protected.Group("/")
 		adminOnly.Use(utils.RoleMiddleware("admin"))
 		adminOnly.PATCH("/promote/:id", r.PromoteUser)
@@ -51,7 +53,7 @@ func (r *userRoutes) RegisterUser(c *gin.Context) {
 		Username: dto.Username,
 		Email:    dto.Email,
 		Password: hashedPassword,
-		Role:     "user", 
+		Role:     "user",
 	}
 
 	createdUser, err := r.t.RegisterUser(&user)
@@ -81,7 +83,7 @@ func (r *userRoutes) LoginUser(c *gin.Context) {
 
 func (r *userRoutes) GetMe(c *gin.Context) {
 	userID, _ := c.Get("userID")
-	
+
 	user, err := r.t.GetUserByID(userID.(string))
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
@@ -89,15 +91,15 @@ func (r *userRoutes) GetMe(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"email": user.Email,
+		"email":    user.Email,
 		"username": user.Username,
-		"role": user.Role,
+		"role":     user.Role,
 	})
 }
 
 func (r *userRoutes) PromoteUser(c *gin.Context) {
 	targetID := c.Param("id")
-	
+
 	err := r.t.PromoteUser(targetID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
