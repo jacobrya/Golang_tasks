@@ -9,7 +9,7 @@ import (
 
 func NewRouter(handler *gin.Engine, u usecase.UserInterface) {
 	
-	handler.Use(utils.RateLimiterMiddleware(15, time.Minute))
+	handler.Use(utils.RateLimiterMiddleware(3, time.Minute))
 
 	v1 := handler.Group("/v1")
 	{
