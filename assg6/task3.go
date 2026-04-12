@@ -8,26 +8,20 @@ import (
 	"time"
 )
 
-func launchProducer(ctx context.Context, label string) <-chan string {
-	msgChan := make(chan string)
-
+func startServer(ctx context.Context, name string) <-chan string {
+	out := make(chan string)
 	go func() {
-		defer close(msgChan)
-
+		defer close(out)
 		for {
-			delay := time.Duration(rand.Intn(500)) * time.Millisecond
-
 			select {
 			case <-ctx.Done():
 				return
-			case <-time.After(delay):
-				msg := fmt.Sprintf("[%s] metric: %d", label, rand.Intn(100))
-				msgChan <- msg
+			case <-time.After(time.Duration(rand.Intn(500)) * time.Millisecond):
+				out <- fmt.Sprintf("[%s] metric: %d", name, rand.Intn(100))
 			}
 		}
 	}()
-
-	return msgChan
+	return out
 }
 
 func FanIn(ctx context.Context, sources ...<-chan string) <-chan string {
@@ -62,9 +56,9 @@ func main() {
 	ctx, stop := context.WithTimeout(context.Background(), timeout)
 	defer stop()
 
-	alphaStream := launchProducer(ctx, "Alpha")
-	betaStream := launchProducer(ctx, "Beta")
-	gammaStream := launchProducer(ctx, "Gamma")
+	alphaStream := startServer(ctx, "Alpha")
+	betaStream := startServer(ctx, "Beta")
+	gammaStream := startServer(ctx, "Gamma")
 
 	output := FanIn(ctx, alphaStream, betaStream, gammaStream)
 
