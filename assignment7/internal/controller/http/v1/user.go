@@ -21,13 +21,13 @@ func newUserRoutes(handler *gin.RouterGroup, t usecase.UserInterface) {
 	{
 
 		public := h.Group("/")
-		public.Use(utils.RateLimiterMiddleware(3, time.Minute))
+		public.Use(utils.RateLimiterMiddleware(10, time.Minute))
 		public.POST("/", r.RegisterUser)
 		public.POST("/login", r.LoginUser)
 
 		protected := h.Group("/")
 		protected.Use(utils.JWTAuthMiddleware())
-		protected.Use(utils.RateLimiterMiddleware(3, time.Minute))
+		protected.Use(utils.RateLimiterMiddleware(10, time.Minute))
 		protected.GET("/me", r.GetMe)
 
 		adminOnly := protected.Group("/")
