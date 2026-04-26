@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
 
@@ -177,6 +178,9 @@ func getEnv(key, fallback string) string {
 }
 
 func main() {
+	if err := godotenv.Load(); err != nil {
+		fmt.Println("No .env file found")
+	}
 
 	connStr := fmt.Sprintf(
 		"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
